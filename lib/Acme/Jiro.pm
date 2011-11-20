@@ -54,7 +54,7 @@ sub new {
 sub prompt {
     my $self = shift;
 
-    for my $key (qw/麺 野菜 背脂 スープ にんにく/) {
+    for my $key (qw/麺 野菜 背脂 タレ にんにく/) {
         my %param_volume;
         my $index = 1;
         for my $k (qw/無し 少なめ 普通 多め 非常に多め 極めて多め/) {
