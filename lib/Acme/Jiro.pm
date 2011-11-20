@@ -211,6 +211,10 @@ I<%args> might be:
 
 =head2 Instance Methods
 
+=head3 C<< $jiro->prompt >>
+
+Choose from options of each parameters.
+
 =head3 C<< $jiro->magic :Str >>
 
 Return Jiro's magic as string. You utter this magic.
