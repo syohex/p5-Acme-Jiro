@@ -22,3 +22,7 @@ Syohei YOSHIDA
 syohex
 gmail
 Acme::Jiro
+ramen
+Ramen
+Jiro's
+Jiro
