@@ -54,7 +54,7 @@ sub new {
 sub prompt {
     my $self = shift;
 
-    for my $key (keys %parameter) {
+    for my $key (qw/麺 野菜 背脂 スープ にんにく/) {
         warn "Input '$key'\n";
 
         my %param_volume;
