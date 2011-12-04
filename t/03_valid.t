@@ -5,10 +5,16 @@ use Test::More;
 use utf8;
 use Acme::Jiro;
 
+binmode STDOUT, ":utf8";
+binmode STDERR, ":utf8";
+
 can_ok('Acme::Jiro', 'get_valid_volume');
 
 my @ret = Acme::Jiro->get_valid_volume('麺');
-is_deeply(\@ret, ['少なめ', '普通'], 'valid 麺 volume');
+my %param = map { $_ => 1 } @ret;
+is_deeply(\%param, {
+    '少なめ' => 1, '普通' => 1, '半分' => 1
+}, 'valid 麺 volume');
 
 eval {
     Acme::Jiro->get_valid_volume();
