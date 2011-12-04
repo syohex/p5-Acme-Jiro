@@ -17,20 +17,27 @@ binmode STDERR, ":utf8";
 our $VERSION = '0.01';
 
 my %volume = (
-    '無し'       => { id => 1, magic => 'ナシ' },
-    '少なめ'     => { id => 2, magic => 'スクナメ' },
-    '普通'       => { id => 3, magic => '' },
-    '多め'       => { id => 4, magic => 'マシ' },
-    '非常に多め' => { id => 5, magic => 'マシマシ' },
-    '極めて多め' => { id => 6, magic => 'チョモランマ' },
+    '無し'       => { magic => 'ナシ' },
+    '少なめ'     => { magic => 'スクナメ' },
+    '普通'       => { magic => '' },
+    '多め'       => { magic => 'マシ' },
+    '非常に多め' => { magic => 'マシマシ' },
+    '極めて多め' => { magic => 'チョモランマ' },
+    '半分'      => { magic => 'ハンブン' },
+    '固め'      => { magic => 'カタメ' },
 );
 
 my %parameter = (
-    '麺'       => { volume => [ 2..3 ], magic => 'メン', default => '普通' },
-    '野菜'     => { volume => [ 1..6 ], magic => 'ヤサイ', default => '普通' },
-    '背脂'     => { volume => [ 1..5 ], magic => 'アブラ', default => '普通' },
-    'タレ'     => { volume => [ 3..5 ], magic => 'カラメ', default => '普通' },
-    'にんにく' => { volume => [ 1..2, 4..5 ], magic => 'ニンニク', default => '無し' },
+    '麺'       => { volume => [ qw/少なめ 半分 普通/ ], magic => 'メン', default => '普通' },
+    '固さ'     => { volume => [ qw/普通 固め/ ], default => '普通' },
+    '野菜'     => { volume => [ qw/無し 少なめ 普通 多め 非常に多め 極めて多め/ ],
+                    magic => 'ヤサイ', default => '普通' },
+    '背脂'     => { volume => [ qw/無し 少なめ 普通 多め 非常に多め / ],
+                    magic => 'アブラ', default => '普通' },
+    'タレ'     => { volume => [ qw/少なめ 普通 多め 非常に多め/ ],
+                    magic => 'カラメ', default => '普通' },
+    'にんにく' => { volume => [ qw/無し 少なめ 多め 非常に多め/ ],
+                    magic => 'ニンニク', default => '無し' },
 );
 
 sub new {
@@ -54,11 +61,11 @@ sub new {
 sub prompt {
     my $self = shift;
 
-    for my $key (qw/麺 野菜 背脂 タレ にんにく/) {
+    for my $key (qw/麺 固さ 野菜 背脂 タレ にんにく/) {
         my %param_volume;
         my $index = 1;
-        for my $k (qw/無し 少なめ 普通 多め 非常に多め 極めて多め/) {
-            if (grep { $volume{$k}->{id} == $_ } @{$parameter{$key}->{volume}}) {
+        for my $k (qw/無し 少なめ 半分 普通 多め 非常に多め 極めて多め 固め/) {
+            if (grep { $k eq $_ } @{$parameter{$key}->{volume}}) {
                 $param_volume{$index++} = $k;
             }
         }
@@ -77,11 +84,21 @@ sub magic {
     my %copy_param = %{$self};
 
     my $str = '';
-    if ($copy_param{'麺'} eq '少なめ') {
-        $str .= "(Before passing ticket) ";
-        $str .= ($parameter{'麺'}->{magic} . $volume{'少なめ'}->{magic} . "\n");
+    my $before_passing = '';
+
+    if ($copy_param{'固さ'} ne '普通') {
+        $before_passing .= $volume{ $copy_param{'固さ'} }->{magic};
+    }
+    delete $copy_param{'固さ'};
+
+    if ($copy_param{'麺'} ne '普通') {
+        $before_passing .= ($volume{$copy_param{'麺'}}->{magic});
     }
     delete $copy_param{'麺'};
+
+    if ($before_passing) {
+        $str .= "(Before passing ticket) " . $before_passing . "\n";
+    }
 
     if ((all { $self->{$_} eq '普通' } qw/野菜 背脂 タレ/)
         && $self->{'にんにく'} eq '無し') {
@@ -145,14 +162,7 @@ sub get_valid_volume {
         Carp::croak("Invalid parameter '$key'");
     }
 
-    my $info = $parameter{$key};
-
-    my @ret;
-    for my $size (@{$info->{volume}}) {
-        push @ret, grep { $volume{$_}->{id} == $size } keys %volume;
-    }
-
-    return @ret;
+    return @{$parameter{$key}->{volume}};
 }
 
 sub _param_magic {
@@ -166,13 +176,8 @@ sub _volume_magic {
 sub _is_valid_volume {
     my ($param, $value) = @_;
 
-    my @valid_volumes = @{$parameter{$param}->{volume}};
-    if (looks_like_number($value)) {
-        return grep { $value == $_ } @valid_volumes;
-    } else {
-        return 0 unless exists $volume{$value};
-        return grep { $volume{$value}->{id} eq $_ } @valid_volumes;
-    }
+    return 1 if exists $volume{$value};
+    return 0;
 }
 
 1;
@@ -192,6 +197,7 @@ Acme::Jiro - Jiro is not a ramen, Jiro is Jiro
 
   my $jiro = Acme::Jiro->new(
       '麺'       => '普通',
+      '固さ'     => '固め',
       '野菜'     => '極めて多め',
       '背脂'     => '多め',
       'タレ'     => '非常に多め',
@@ -219,6 +225,8 @@ I<%args> might be:
 =over
 
 =item 麺 :{'少なめ', '普通'}
+
+=item 固さ :{'普通', '固め'}
 
 =item 野菜 :{'無し', '少なめ', '普通', '多め', '非常に多め', '極めて多め'}
 

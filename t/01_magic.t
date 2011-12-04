@@ -65,7 +65,14 @@ my $men_sukuname = Acme::Jiro->new(
 );
 
 like $men_sukuname->magic, qr/Before passing ticket/, 'men sukuname';
-like $men_sukuname->magic, qr/メンスクナメ/, 'men sukuname2';
+like $men_sukuname->magic, qr/スクナメ/, 'men sukuname2';
+
+my $men_katame = Acme::Jiro->new(
+    '固さ' => '固め',
+);
+
+like $men_katame->magic, qr/Before passing ticket/, 'men katame';
+like $men_katame->magic, qr/カタメ/, 'men katame2';
 
 my $chomolungma = Acme::Jiro->new(
     '麺'       => '少なめ',
