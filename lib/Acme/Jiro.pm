@@ -134,6 +134,27 @@ sub magic {
     return $str;
 }
 
+sub get_valid_volume {
+    my ($self, $key) = @_;
+
+    unless (defined $key) {
+        Carp::croak("'key' parameter is not defined");
+    }
+
+    unless (exists $parameter{$key}) {
+        Carp::croak("Invalid parameter '$key'");
+    }
+
+    my $info = $parameter{$key};
+
+    my @ret;
+    for my $size (@{$info->{volume}}) {
+        push @ret, grep { $volume{$_}->{id} == $size } keys %volume;
+    }
+
+    return @ret;
+}
+
 sub _param_magic {
     $parameter{ $_[0] }->{magic};
 }
@@ -218,6 +239,10 @@ Choose from options of each parameters.
 =head3 C<< $jiro->magic :Str >>
 
 Return Jiro's magic as string. You utter this magic.
+
+=head3 C<< $jiro->valid_volume($key) :Array[Str] >>
+
+Return valid volumes of C<$key>.
 
 =head1 AUTHOR
 
