@@ -47,7 +47,7 @@ sub new {
     for my $key (keys %parameter) {
         my $ret;
 
-        if ($args{$key} && ($ret = _is_valid_volume($key, $args{$key})) ) {
+        if ($args{$key} && ($ret = _is_valid_param($key, $args{$key})) ) {
             $info{$key} = $args{$key};
         } else {
             Carp::carp("$args{$key} is invalid parameter\n") if defined $ret && $ret == 0;
@@ -151,7 +151,7 @@ sub magic {
     return $str;
 }
 
-sub get_valid_volume {
+sub get_valid_param {
     my ($self, $key) = @_;
 
     unless (defined $key) {
@@ -173,7 +173,7 @@ sub _volume_magic {
     $volume{ $_[0] }->{magic};
 }
 
-sub _is_valid_volume {
+sub _is_valid_param {
     my ($param, $value) = @_;
 
     return 1 if exists $volume{$value};
@@ -248,9 +248,9 @@ Choose from options of each parameters.
 
 Return Jiro's magic as string. You utter this magic.
 
-=head3 C<< $jiro->valid_volume($key) :Array[Str] >>
+=head3 C<< $jiro->valid_param($key) :Array[Str] >>
 
-Return valid volumes of C<$key>.
+Return valid parameters of C<$key>.
 
 =head1 AUTHOR
 
