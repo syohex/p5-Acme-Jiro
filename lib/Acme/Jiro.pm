@@ -12,8 +12,6 @@ use List::MoreUtils qw(all);
 
 use IO::Prompt::Simple ();
 
-binmode STDERR, ":utf8";
-
 our $VERSION = '0.01';
 
 my %volume = (
